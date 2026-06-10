@@ -1,6 +1,8 @@
 {% liquid
   assign model_collection = section.settings.model_collection
   assign model_limit = section.settings.model_limit | default: 8
+  assign visible_model_count = model_collection.products_count | at_most: model_limit
+  assign featured_model = model_collection.products.first
 %}
 
 <section class="premium-cap-home color-{{ section.settings.color_scheme }}">
@@ -43,6 +45,17 @@
             fetchpriority: 'high',
             alt: section.settings.hero_image.alt
         }}
+      {% elsif featured_model.featured_image != blank %}
+        {{
+          featured_model.featured_image
+          | image_url: width: 1800
+          | image_tag:
+            widths: '750, 1100, 1500, 1800',
+            sizes: '(min-width: 990px) 56vw, 100vw',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: featured_model.featured_image.alt
+        }}
       {% else %}
         <div class="premium-cap-home__media-placeholder">
           {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
@@ -62,7 +75,7 @@
         {% endif %}
       </div>
 
-      <div class="premium-cap-home__model-grid">
+      <div class="premium-cap-home__model-grid" data-model-count="{{ visible_model_count }}">
         {% if model_collection != blank and model_collection.products_count > 0 %}
           {% for product in model_collection.products limit: model_limit %}
             <a class="premium-cap-card" href="{{ product.url }}">
@@ -73,7 +86,7 @@
                     | image_url: width: 900
                     | image_tag:
                       widths: '360, 540, 720, 900',
-                      sizes: '(min-width: 990px) 25vw, 50vw',
+                      sizes: '(min-width: 990px) 50vw, 50vw',
                       loading: 'lazy',
                       alt: product.featured_image.alt
                   }}
@@ -150,6 +163,17 @@
                     sizes: '(min-width: 990px) 33vw, 80vw',
                     loading: 'lazy',
                     alt: block.settings.image.alt
+                }}
+              {% elsif model_collection.products[forloop.index0].featured_image != blank %}
+                {% assign gallery_product = model_collection.products[forloop.index0] %}
+                {{
+                  gallery_product.featured_image
+                  | image_url: width: 1200
+                  | image_tag:
+                    widths: '420, 720, 960, 1200',
+                    sizes: '(min-width: 990px) 33vw, 80vw',
+                    loading: 'lazy',
+                    alt: gallery_product.featured_image.alt
                 }}
               {% else %}
                 {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
@@ -452,6 +476,19 @@
 
     .premium-cap-home__model-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .premium-cap-home__model-grid[data-model-count='1'] {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 720px;
+    }
+
+    .premium-cap-home__model-grid[data-model-count='2'] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .premium-cap-home__model-grid[data-model-count='3'] {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .premium-cap-home__steps-grid {
