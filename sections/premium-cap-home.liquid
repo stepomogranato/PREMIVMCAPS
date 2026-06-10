@@ -153,6 +153,7 @@
       <div class="premium-cap-home__gallery">
         {% for block in section.blocks %}
           {% if block.type == 'gallery_image' %}
+            {% assign gallery_product = model_collection.products[forloop.index0] %}
             <figure class="premium-cap-home__gallery-item" {{ block.shopify_attributes }}>
               {% if block.settings.image != blank %}
                 {{
@@ -164,8 +165,7 @@
                     loading: 'lazy',
                     alt: block.settings.image.alt
                 }}
-              {% elsif model_collection.products[forloop.index0].featured_image != blank %}
-                {% assign gallery_product = model_collection.products[forloop.index0] %}
+              {% elsif gallery_product.featured_image != blank %}
                 {{
                   gallery_product.featured_image
                   | image_url: width: 1200
