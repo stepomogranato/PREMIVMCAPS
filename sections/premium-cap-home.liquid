@@ -46,15 +46,10 @@
             alt: section.settings.hero_image.alt
         }}
       {% else %}
-        <img
-          class="premium-cap-home__asset-image"
-          src="{{ 'dad-hat.png' | asset_url }}"
-          alt="Custom Dad Hat"
-          width="1600"
-          height="1600"
-          loading="eager"
-          fetchpriority="high"
-        >
+        <div class="premium-cap-home__media-placeholder">
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          <span>Add a premium cap image or video</span>
+        </div>
       {% endif %}
     </div>
   </div>
@@ -71,16 +66,10 @@
 
       {% assign dad_hat_product = model_collection.products[0] %}
       {% assign snapback_product = model_collection.products[1] %}
-      <div class="premium-cap-home__model-grid" data-model-count="2">
+      <div class="premium-cap-home__model-grid" data-model-count="8">
         <a class="premium-cap-card" href="{% if dad_hat_product != blank %}{{ dad_hat_product.url }}{% else %}#cap-models{% endif %}">
           <div class="premium-cap-card__media">
-            <img
-              src="{{ 'dad-hat.png' | asset_url }}"
-              alt="Custom Dad Hat"
-              width="1200"
-              height="1200"
-              loading="lazy"
-            >
+            <img src="{{ 'dad-hat.png' | asset_url }}" alt="Custom Dad Hat" width="1200" height="1200" loading="lazy">
           </div>
           <div class="premium-cap-card__details">
             <h3>{% if dad_hat_product != blank %}{{ dad_hat_product.title | escape }}{% else %}Dad Hat{% endif %}</h3>
@@ -90,19 +79,25 @@
 
         <a class="premium-cap-card" href="{% if snapback_product != blank %}{{ snapback_product.url }}{% else %}#cap-models{% endif %}">
           <div class="premium-cap-card__media">
-            <img
-              src="{{ 'snapback.png' | asset_url }}"
-              alt="Custom Snapback"
-              width="1200"
-              height="1200"
-              loading="lazy"
-            >
+            <img src="{{ 'snapback.png' | asset_url }}" alt="Custom Snapback" width="1200" height="1200" loading="lazy">
           </div>
           <div class="premium-cap-card__details">
             <h3>{% if snapback_product != blank %}{{ snapback_product.title | escape }}{% else %}Snapback{% endif %}</h3>
             <span>{% if snapback_product != blank %}{{ snapback_product.price | money }}{% else %}Customizable model{% endif %}</span>
           </div>
         </a>
+
+        {% for index in (3..8) %}
+          <div class="premium-cap-card">
+            <div class="premium-cap-card__media">
+              {{ 'product-' | append: index | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+            <div class="premium-cap-card__details">
+              <h3>Custom cap model {{ index }}</h3>
+              <span>Coming soon</span>
+            </div>
+          </div>
+        {% endfor %}
       </div>
     </div>
 
@@ -141,19 +136,28 @@
       </div>
 
       <div class="premium-cap-home__gallery">
-        <figure class="premium-cap-home__gallery-item">
-          <img src="{{ 'dad-hat.png' | asset_url }}" alt="Dad Hat customization example" width="1200" height="1200" loading="lazy">
-          <figcaption>Dad Hat</figcaption>
-        </figure>
-        <figure class="premium-cap-home__gallery-item">
-          <img src="{{ 'snapback.png' | asset_url }}" alt="Snapback customization example" width="1200" height="1200" loading="lazy">
-          <figcaption>Snapback</figcaption>
-        </figure>
-        <figure class="premium-cap-home__gallery-item premium-cap-home__gallery-item--pair">
-          <img src="{{ 'dad-hat.png' | asset_url }}" alt="Custom cap collection" width="1200" height="1200" loading="lazy">
-          <img src="{{ 'snapback.png' | asset_url }}" alt="" width="1200" height="1200" loading="lazy">
-          <figcaption>Choose your shape</figcaption>
-        </figure>
+        {% for block in section.blocks %}
+          {% if block.type == 'gallery_image' %}
+            <figure class="premium-cap-home__gallery-item" {{ block.shopify_attributes }}>
+              {% if block.settings.image != blank %}
+                {{
+                  block.settings.image
+                  | image_url: width: 1200
+                  | image_tag:
+                    widths: '420, 720, 960, 1200',
+                    sizes: '(min-width: 990px) 33vw, 80vw',
+                    loading: 'lazy',
+                    alt: block.settings.image.alt
+                }}
+              {% else %}
+                {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+              {% endif %}
+              {% if block.settings.caption != blank %}
+                <figcaption>{{ block.settings.caption | escape }}</figcaption>
+              {% endif %}
+            </figure>
+          {% endif %}
+        {% endfor %}
       </div>
     </div>
 
@@ -235,10 +239,6 @@
     object-fit: cover;
   }
 
-  .premium-cap-home__hero-media .premium-cap-home__asset-image {
-    object-fit: contain;
-    padding: clamp(24px, 5vw, 72px);
-  }
 
   .premium-cap-home__media-placeholder {
     position: relative;
@@ -398,18 +398,9 @@
   .premium-cap-home__gallery-item svg {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    padding: clamp(16px, 3vw, 36px);
+    object-fit: cover;
   }
 
-  .premium-cap-home__gallery-item--pair {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .premium-cap-home__gallery-item--pair img {
-    min-width: 0;
-  }
 
   .premium-cap-home__gallery-item figcaption {
     position: absolute;
